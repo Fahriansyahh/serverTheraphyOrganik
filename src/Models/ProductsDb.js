@@ -24,6 +24,10 @@ const Schema = mongoose.Schema({
         Stock: {
             type: "string",
             required: true,
+        },
+        Link: {
+            type: "string",
+            required: true
         }
     }
 }, {

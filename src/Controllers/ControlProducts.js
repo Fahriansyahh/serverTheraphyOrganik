@@ -64,10 +64,11 @@ exports.Create = async (req, res, next) => {
             const Harga = req.body.Harga
             const Keterangan = req.body.Keterangan
             const Stock = req.body.Stock
+            const Link = req.body.Link
             //!mongose
             const Posting = new Products({
                 Kategori: Kategori,
-                Products: { Title: Title, image: image, Harga: Harga, Keterangan: Keterangan, Stock: Stock }
+                Products: { Title: Title, image: image, Harga: Harga, Keterangan: Keterangan, Stock: Stock, Link: Link }
             })
             Posting.save().then((result) => {
                 res.status(201).json({
@@ -75,7 +76,7 @@ exports.Create = async (req, res, next) => {
                     Products: result
                 })
             }).catch(err => console.log("error Create Products \n\n" + err))
-            removeImage(image)
+            removeImage(req.file.path)
         }
     }
 
@@ -116,6 +117,16 @@ exports.getById = (req, res, next) => {
         console.log(err)
     })
 }
+//!KategoriAll
+exports.KategoryAll = (req, res, next) => {
+    Products.find().then(response => {
+        const categories = Array.from(new Set(response.map(item => item.Kategori)));
+        res.status(200).json({
+            message: "get kategory All succes",
+            data: categories
+        });
+    });
+};
 //! kategori by id
 exports.KategoriById = (req, res, next) => {
     console.log(req.body.kategori)
@@ -141,7 +152,7 @@ exports.deleteId = (req, res, next) => {
             console.log(err)
         })
 }
-//!update
+//!update   
 removeImage = (filePathImg) => {
     filePathImg = path.join(__dirname, "../..", filePathImg)
     fs.unlink(filePathImg, err => console.log(err))
