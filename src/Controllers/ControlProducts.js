@@ -120,23 +120,35 @@ exports.getById = (req, res, next) => {
 //!KategoriAll
 exports.KategoryAll = (req, res, next) => {
     Products.find().then(response => {
-        const categories = Array.from(new Set(response.map(item => item.Kategori)));
+        const categories = Array.from(new Set(response.map(item => item.Kategori.toLowerCase())));
         res.status(200).json({
-            message: "get kategory All succes",
+            message: "get kategory All success",
             data: categories
         });
     });
 };
+
 //! kategori by id
 exports.KategoriById = (req, res, next) => {
-    console.log(req.body.kategori)
-    Products.find({ Kategori: req.body.kategori }).then(response => {
+    const currentPage = req.query.page || 1
+    const toPage = req.query.toPage || 10
+    let totalAllData;
+    Products.find({ Kategori: req.params.byId }).countDocuments().then(result => {
+        totalAllData = result
+        return Products.find({ Kategori: req.params.byId }).skip((parseInt(currentPage) - 1) * parseInt(toPage))
+            .limit(toPage)
+    }).then((result) => {
+        let pageNum = Math.floor(totalAllData / 10) + 1
         res.status(200).json({
-            message: "get success",
-            Products: response
+            message: "get all data project",
+            data: result,
+            totalProject: totalAllData,
+            pageNum,
+            toPage: toPage,
+            page: currentPage
         })
-    }).catch(err => {
-        console.log(err)
+    }).catch((err) => {
+        next(err)
     })
 }
 //! delete ID
