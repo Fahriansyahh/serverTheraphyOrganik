@@ -54,11 +54,13 @@ exports.Create = async (req, res, next) => {
 
                 const images = path.join(__dirname, "../..", `${source}`)
                 await sharp(req.file.path).resize(200, 200).toFile(images)
+                removeImage(req.file.path)
+
             } catch (err) {
                 console.log(err);
             }
             //!body
-            const Kategori = req.body.Kategori
+            const Kategori = req.body.Kategori.toLowerCase()
             const Title = req.body.Title
             const image = source
             const Harga = req.body.Harga
@@ -79,6 +81,7 @@ exports.Create = async (req, res, next) => {
             removeImage(req.file.path)
         }
     }
+
 
 }
 
@@ -156,6 +159,7 @@ exports.deleteId = (req, res, next) => {
     const id = req.params.id
     Products.findByIdAndRemove(id)
         .then(response => {
+            removeImage(response.Products.image)
             res.status(200).json({
                 message: " delete success",
                 response
@@ -164,6 +168,92 @@ exports.deleteId = (req, res, next) => {
             console.log(err)
         })
 }
+//! update Byid
+exports.updateById = async (req, res, next) => {
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+
+        if (!req.file) {
+            const error = { message: "input tidak ada" }
+            error.errorStatus = 400
+            let dat = errors.array()
+            dat.push({ msg: "image tidak ada" })
+            const data = { notValid: dat }
+            error.data = data
+            res.status(400).json({
+                data: error
+            })
+        } else {
+            const error = { message: "input tidak ada" }
+            error.errorStatus = 400
+            const image = req.file.path
+            removeImage(image)
+            const data = { notValid: errors.array() }
+            error.data = data
+            res.status(400).json({
+                data: error
+            })
+        }
+
+    }
+    if (errors.isEmpty()) {
+        if (!req.file) {
+            const err = { message: "input tidak ada" }
+            let dat = errors.array()
+            dat.push({ msg: "image tidak ada" })
+            const data = { notValid: dat }
+            err.data = data
+            res.status(400).json({
+                data: err
+            })
+        } else {
+            //! validasi sharp
+            const random = Math.floor(100000 + Math.random() * 900000);
+            const source = `images/${`Products-${random}-` + req.file.originalname}`
+            try {
+
+                const images = path.join(__dirname, "../..", `${source}`)
+                await sharp(req.file.path).resize(200, 200).toFile(images)
+            } catch (err) {
+                console.log(err);
+            }
+            //!body
+
+
+
+            const Kategori = req.body.Kategori.toLowerCase()
+            const Title = req.body.Title
+            const image = source
+            const Harga = req.body.Harga
+            const Keterangan = req.body.Keterangan
+            const Stock = req.body.Stock
+            const Link = req.body.Link
+            const id = req.params.byId
+            const filter = { Kategori: Kategori, Products: { Title: Title, image: image, Harga: Harga, Keterangan: Keterangan, Stock: Stock, Link: Link } }
+            Products.findByIdAndUpdate({ _id: id }, filter, { new: false }, function (err, doc) {
+                if (!doc) {
+
+                    res.json({
+                        message: false,
+                    })
+                } else {
+                    removeImage(doc.Products.image)
+                    res.json({
+                        message: true,
+                        data: doc
+                    })
+                }
+
+            })
+            removeImage(req.file.path)
+        }
+    }
+
+
+}
+
 //!update   
 removeImage = (filePathImg) => {
     filePathImg = path.join(__dirname, "../..", filePathImg)
