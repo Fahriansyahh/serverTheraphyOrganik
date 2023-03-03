@@ -5,7 +5,9 @@ const multer = require('multer')
 const path = require("path")
 const bodyParser = require('body-parser')
 const Products = require("./src/Routes/Products")
+const ListTheraphy = require("./src/Routes/ListTheraphy")
 //! multer
+
 const fileStorage = multer.diskStorage({
     destination: (req, file, cb) => {
         // mengarahakan destination ke file images
@@ -49,9 +51,12 @@ app.use(allowCrossDomain)
 app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
-//! tutup setup body parser
+app.use(express.json());
 
+//! tutup setup body parser
+app.use("/ListTheraphy/v1", ListTheraphy)
 app.use("/Products/v1", Products)
+
 //! set up mongoose
 mongoose.set('strictQuery', true);
 
