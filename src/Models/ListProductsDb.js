@@ -11,10 +11,8 @@ const Schema = mongoose.Schema(
             required: true,
         },
         paket: {
-            type: Map,
-            of: {
-                type: mongoose.Schema.Types.Mixed,
-            },
+            type: Array,
+            required: true
         },
     },
     { timestamps: true }

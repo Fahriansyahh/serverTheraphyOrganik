@@ -4,7 +4,7 @@ const ListTheraphy = require("../Models/ListProductsDb");
 exports.Created = (req, res, next) => {
     const title = req.body.title;
     const body = req.body.body;
-    const paket = new Map();
+    const paket = [];
 
     // Iterasi sebanyak 20 paket
     for (let i = 1; i <= 20; i++) {
@@ -13,7 +13,7 @@ exports.Created = (req, res, next) => {
 
         // Jika harga dan deskripsi tersedia, tambahkan ke map paket
         if (harga && deskripsi) {
-            paket.set(`paket${i}`, { harga: harga, deskripsi: deskripsi });
+            paket.push({ PilihanPaket: [`paket${i}`], harga: harga, deskripsi: deskripsi });
         }
     }
 
@@ -70,6 +70,7 @@ exports.update = (req, res, next) => {
     const id = req.params.id;
     const title = req.body.title;
     const body = req.body.body;
+    //! paket ini di maksudkan langsung di kirim dan di  olah datanya di frontEnd
     const paket = req.body.paket;
 
     let update = {};
