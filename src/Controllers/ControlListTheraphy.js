@@ -13,7 +13,7 @@ exports.Created = (req, res, next) => {
 
         // Jika harga dan deskripsi tersedia, tambahkan ke map paket
         if (harga && deskripsi) {
-            paket.push({ PilihanPaket: [`paket${i}`], harga: harga, deskripsi: deskripsi });
+            paket.push({ PilihanPaket: `paket${i}`, harga: harga, deskripsi: deskripsi });
         }
     }
 
@@ -57,7 +57,7 @@ exports.deleted = (req, res, next) => {
 
 exports.getByid = (req, res, next) => {
     const id = req.params.byId
-    ListTheraphy.findOne({ _id: id }).then(response => {
+    ListTheraphy.findById(id).then(response => {
         res.status(200).json({
             message: "getAllById",
             data: response
@@ -71,7 +71,7 @@ exports.update = (req, res, next) => {
     const title = req.body.title;
     const body = req.body.body;
     //! paket ini di maksudkan langsung di kirim dan di  olah datanya di frontEnd
-    const paket = req.body.paket;
+    const paket = req.body.paket
 
     let update = {};
     body ? update.body = body : false;
@@ -81,7 +81,7 @@ exports.update = (req, res, next) => {
     ListTheraphy.findOneAndUpdate(
         { _id: id },
         { $set: update },
-        { new: true },
+        { new: false },
         function (err, doc) {
             if (err) {
                 console.log("error:", err);
