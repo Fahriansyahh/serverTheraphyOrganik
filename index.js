@@ -6,6 +6,7 @@ const path = require("path")
 const bodyParser = require('body-parser')
 const Products = require("./src/Routes/Products")
 const ListTheraphy = require("./src/Routes/ListTheraphy")
+const User=require("./src/Routes/User")
 //! multer
 
 const fileStorage = multer.diskStorage({
@@ -56,6 +57,7 @@ app.use(express.json());
 //! tutup setup body parser
 app.use("/ListTheraphy/v1", ListTheraphy)
 app.use("/Products/v1", Products)
+app.use("/User/v1",User)
 
 //! set up mongoose
 mongoose.set('strictQuery', true);
