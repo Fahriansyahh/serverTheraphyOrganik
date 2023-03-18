@@ -20,6 +20,10 @@ const Schema = mongoose.Schema({
         Alamat: {
             type: "string",
             required: true,
+        },
+        Pesanan:{
+            type:Array,
+            required:false
         }
     }
 }, {
