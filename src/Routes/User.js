@@ -8,5 +8,5 @@ route.post("/Created",[body("FullName").isUppercase().withMessage("Full Name har
 
 route.get("/Auth",[body("FullName").isUppercase().withMessage("Full Name harus huruf Besar"),body("Password").isLength({ min: 3, max: 20 }).withMessage("Password minimal 3")],User.Auth)
 //!update
-// route.put("/update",User.Update)
+route.put("/updatePesan/:id",User.Update)
 module.exports = route
