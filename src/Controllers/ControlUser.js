@@ -1,7 +1,7 @@
 const { response } = require('express');
 const { validationResult } = require('express-validator');
 const UserDb=require("../Models/UserDb")
-const nodemailer = require('nodemailer');
+const gmail=require("../Messages/GmailUser")
 exports.Created=  (req,res,next)=>{
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -16,7 +16,7 @@ res.status(400).json({
     const Email=req.body.Email
     const NoHp=req.body.NoHp
     const Alamat=req.body.Alamat
-
+    const KeyPassword=""
         UserDb.findOne({ 'User.Email': Email, 'User.NoHp': NoHp, 'User.FullName': FullName }).then(response => {
             if (response) {
                 res.status(500).json({
@@ -24,7 +24,7 @@ res.status(400).json({
                 })
             } else {
                 const Posting = new UserDb({
-                    User: { FullName, Password, Email, NoHp: ("0" + NoHp), Alamat }
+                    User: { FullName, Password, Email, NoHp: ("0" + NoHp), Alamat,KeyPassword }
                 })
                 Posting.save().then(response => {
                     res.status(200).json({
@@ -71,7 +71,7 @@ else{
 }
 
 
-exports.Update=(req,res,next)=>{
+exports.Update= async (req,res,next)=>{
 const id=req.params.id
 const Theraphy=req.body.Theraphy
 const Paket=req.body.Paket
@@ -81,49 +81,16 @@ const Deskripsi=req.body.Deskripsi
 const Harga=req.body.Harga
 const Komentar=req.body.Komentar
 
-UserDb.findById(id).then(response => {
-    let arr=response.User.Pesanan
+await UserDb.findById(id).then(response => {
+    const arr=response.User.Pesanan
     const emailUser=response.User.Email
-    const User=response.User.FullName
-    const html=`
-    <div>
-    <h4>Kepada Pelanggan TherapyOrganic,</h4>
-    <br>
-    <h5>Anda Telah Memesan ${Theraphy}</h5>
-    <ul>
-        <li>Paket : ${Paket}</li>
-        <li>Harga : ${Harga}</li>
-        <li>Dari : ${Dari}</li>
-        <li>Sampai : ${Sampai}</li>
-    </ul>
-    <br>
-    <p>
-    Kami dari TherapyOrganic ingin memberitahukan informasi pembayaran terkait dengan pesanan Anda. Mohon melakukan pembayaran sejumlah ${Harga} ke rekening BCA kami di bawah ini:
-    </p>
-    <ul>
-        <li>Nomor Rekening: 6800526084</li>
-        <li>Atas Nama: HAPIFA</li>
-    </ul>
-    <P><strong>pembayaran selain ini di luar tanggung jawab Kami </strong></P>
-    <br>
-    <p>Jika Anda memiliki pertanyaan atau keluhan terkait dengan pesanan Anda, jangan ragu untuk menghubungi kami di nomor telepon <a href="https://wa.me/6282299151123">082299151123</a></p>
-    <br>
-   
-    
-    <br>
-    <p><i> Terima kasih atas kepercayaan Anda dalam memilih produk organic dari  TherapyOrganic.</i></p>
-    <br>
-    <br>
-    <h4><strong>Salam Hormat,</strong></h4>
-    <h4><strong>TherapyOrganic</strong></h4>
-<br>
-<br>
-
-    </div>
-    `
+    const FullName=response.User.FullName 
+    const NoHP=response.User.NoHp
+    const Alamat=response.User.Alamat
     if(arr.length === 0 ){
         
-        email(emailUser,html).catch(console.error);
+        gmail.email(emailUser,gmail.Pesan(Theraphy,Paket,Harga,Dari,Sampai),"Pemesanan Threraphy Organic")
+        gmail.emailAdmin(gmail.PesanAdmin(FullName,NoHP,Alamat,Theraphy,Paket,Harga,Dari,Sampai,Deskripsi,Komentar))
     const Pesanan=[{Theraphy,Paket,Dari,Sampai,Deskripsi,Harga,Komentar}]
       UserDb.findOneAndUpdate(
         { _id: id },
@@ -143,7 +110,8 @@ UserDb.findById(id).then(response => {
         }
     );
 }else{
-email(emailUser,html).catch((err)=> console.log(err));
+gmail.emailAdmin(gmail.PesanAdmin(FullName,NoHP,Alamat,Theraphy,Paket,Harga,Dari,Sampai,Deskripsi,Komentar)) 
+gmail.email(emailUser,gmail.Pesan(Theraphy,Paket,Harga,Dari,Sampai),"Pemesanan Threraphy Organic")
 const dataPesan=arr
 const PesananPush={Theraphy,Paket,Dari,Sampai,Deskripsi,Harga,Komentar}
 dataPesan.push(PesananPush)
@@ -157,6 +125,7 @@ UserDb.findOneAndUpdate(
                 error: err,
             });
         } else {
+          
             console.log("doc:", doc);
             res.status(200).json({
                 data: doc,
@@ -167,28 +136,178 @@ UserDb.findOneAndUpdate(
 })
 }
 
-async function email(emailUser,html) {
-    let transporter = nodemailer.createTransport({
-host:"fahrumfahriansyah1@gmail.com",
-service:"gmail",
-        auth: {
-        user: "fahrumfahriansyah1@gmail.com", // generated ethereal user
-        pass: "fssfrudwamcallka", // generated ethereal password
-      },
-    });
- 
-    const sendMail=()=>{
-        const option={
-            from: 'fahrumfahriansyah1@gmail.com', // sender address
-            to: emailUser, // list of receivers
-            subject: "Pemesanan Produk PT TherapyOrganic", // Subject line
-            html ,
-        }
-        transporter.sendMail(option,(err,info)=>{
-            if(err)console.log(err);
-            console.log("email terkirim")
+exports.GetById=(req,res,next)=>{
+    const id = req.params.id
+    UserDb.findById(id).then(response => {
+        res.status(200).json({
+            message: "getAllById",
+            data: response
         })
+    })
+}
+
+exports.DeleteById=(req,res,next)=>{
+    const id = req.params.id
+    UserDb.findByIdAndRemove(id)
+        .then(response => {
+            gmail.email(response.User.Email,gmail.PesanDelete(response.User.FullName,response.User.Alamat),"Akun Anda Di Blokir")
+            res.status(200).json({
+                message: " delete success",
+                response
+            })
+        }).catch(err => {
+            console.log(err)
+        })
+}
+
+exports.GetAll=(req,res,next)=>{
+    UserDb.find().then(response=>{
+        res.status(200).json({
+            message:"GetAll User",
+            response
+        })
+    }).catch(err=>{
+        console.log(err)
+    })
+}
+
+exports.updateUser = (req, res, next) => {
+    const errors = validationResult(req);
+    const id = req.params.id
+    const FullName = req.body.FullName || undefined
+    const Email = req.body.Email || undefined
+    const NoHp = req.body.NoHp || undefined
+    const Alamat = req.body.Alamat || undefined
+    
+    if (!errors.isEmpty()) {
+        res.status(400).json({
+            data: {
+                message: "Input value tidak sesuai",
+                err: errors.array()
+            }
+        })
+    } else {
+        const updateFields = {}
+        
+        if (FullName) {
+            updateFields['User.FullName'] = FullName
+        }
+        if (Email) {
+            updateFields['User.Email'] = Email
+        }
+        if (NoHp) {
+            updateFields['User.Nohp'] = NoHp
+        }
+        if (Alamat) {
+            updateFields['User.Alamat'] = Alamat
+        }
+        
+        UserDb.findOneAndUpdate(
+            { _id: id },
+            { $set: updateFields },
+            { new: false },
+            function (err, doc) {
+                if (err) {
+                    res.status(400).json({
+                        error: err,
+                    });
+                } else {
+                    console.log("doc:", doc);
+                    res.status(200).json({
+                        data: doc,
+                    });
+                }
+            }
+        );
+    }  
+}
+
+
+exports.KeyPassword=(req,res,next)=>{
+    const Email=req.body.Email
+    let Key = random()
+    UserDb.findOneAndUpdate(
+        { "User.Email": Email },
+        { $set: { 'User.KeyPassword': Key} },
+        { new: false },
+        function (err, doc) {
+          if (err) {
+            res.status(400).json({
+              error: err,
+            });
+          } else {
+            console.log("doc:", doc);
+            if(doc === null){
+                res.status(200).json({
+                    error: "email tidak ada",
+                  });
+            }else{
+              gmail.email(Email,gmail.KeyPass(Key),"Authentication Code")
+                res.status(200).json({
+                    data: doc,
+                  });
+            }
+            
+          }
+        }
+      );
+}
+
+
+exports.newAcount=(req,res,next)=>{
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+       
+res.status(400).json({
+   
+    data:{message:"input value tidak sesuai",err:errors.array()}
+})
+    }else{
+    const Key=req.body.Key
+    const Email=req.body.Email
+    const Password=req.body.Password
+
+    UserDb.findOneAndUpdate(
+        { "User.KeyPassword": Key },
+        { $set: { 'User.Email': Email,'User.Password': Password} },
+        { new: false },
+        function (err, doc) {
+          if (err) {
+            res.status(400).json({
+              error: err,
+            });
+          } else {
+            console.log("doc:", doc);
+            if(doc === null){
+                res.status(200).json({
+                    error: "Code Salah",
+                  });
+            }else{
+              gmail.email(Email,gmail.KeyPass(Key),"Authentication Code")
+                res.status(200).json({
+                    data: doc,
+                  });
+            }
+            
+          }
+        }
+      );
     }
-   return sendMail()
+}
+
+
+function  random(){
+
+    
+ for (let i = 0; i < 6; i++) {
+  let text = '';
+  for (let j = 0; j < 6; j++) {
+    text += String.fromCharCode(Math.random() < 0.5 ? 65 + Math.floor(Math.random() * 26) : 97 + Math.floor(Math.random() * 26));
   }
-  
+
+return text
+
+}
+
+
+}

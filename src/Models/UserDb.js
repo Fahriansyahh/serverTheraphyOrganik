@@ -24,6 +24,10 @@ const Schema = mongoose.Schema({
         Pesanan:{
             type:Array,
             required:false
+        },
+        KeyPassword:{
+            type: "string",
+            required: false,
         }
     }
 }, {
