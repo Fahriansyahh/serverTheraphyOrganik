@@ -1,30 +1,30 @@
 const { response } = require('express');
 const { validationResult } = require('express-validator');
-const UserDb=require("../Models/UserDb")
-const gmail=require("../Messages/GmailUser")
-exports.Created=  (req,res,next)=>{
+const UserDb = require("../Models/UserDb")
+const gmail = require("../Messages/GmailUser")
+exports.Created = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-       
-res.status(400).json({
-   
-    data:{message:"input value tidak sesuai",err:errors.array()}
-})
-    }else{
-    const FullName=req.body.FullName
-    const Password=req.body.Password
-    const Email=req.body.Email
-    const NoHp=req.body.NoHp
-    const Alamat=req.body.Alamat
-    const KeyPassword=""
+
+        res.status(400).json({
+
+            data: { message: "input value tidak sesuai", err: errors.array() }
+        })
+    } else {
+        const FullName = req.body.FullName
+        const Password = req.body.Password
+        const Email = req.body.Email
+        const NoHp = req.body.NoHp
+        const Alamat = req.body.Alamat
+        const KeyPassword = ""
         UserDb.findOne({ 'User.Email': Email, 'User.NoHp': NoHp, 'User.FullName': FullName }).then(response => {
             if (response) {
                 res.status(500).json({
-                  data: { err: [{value:{FullName,Password,Email,NoHp,Alamat},msg:"datasudah ada"}] }
+                    data: { err: [{ value: { FullName, Password, Email, NoHp, Alamat }, msg: "data sudah ada" }] }
                 })
             } else {
                 const Posting = new UserDb({
-                    User: { FullName, Password, Email, NoHp: ("0" + NoHp), Alamat,KeyPassword }
+                    User: { FullName, Password, Email, NoHp: ("0" + NoHp), Alamat, KeyPassword }
                 })
                 Posting.save().then(response => {
                     res.status(200).json({
@@ -35,108 +35,100 @@ res.status(400).json({
                 })
             }
         })
-    
 
-   
+
+
     }
 }
 
 
-exports.Auth=(req,res,next)=>{
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-       
-res.status(400).json({
-   
-    data:{message:"input value tidak sesuai",err:errors.array()}
-})}
-else{
-    const FullName=req.body.FullName
-    const Password =req.body.Password
+exports.Auth = (req, res, next) => {
 
-    UserDb.findOne({"User.FullName":FullName,"User.Password":Password}).then(response =>{
+    const { FullName, Password } = req.query;
+
+    UserDb.findOne({ "User.FullName": FullName, "User.Password": Password }).then(response => {
         if (response) {
-    res.status(500).json({
-              data:response
+            res.status(200).json({
+                data: response
             })
         } else {
-            res.status(500).json({
-                data: { err: [{value:{FullName,Password},msg:"Password Anda salah"}] }
+            res.status(400).json({
+                data: { err: [{ value: { FullName, Password }, msg: "Password Anda salah" }] }
             })
         }
-    }).catch(err=>{
+    }).catch(err => {
         console.log(err)
     })
 }
-}
 
 
-exports.Update= async (req,res,next)=>{
-const id=req.params.id
-const Theraphy=req.body.Theraphy
-const Paket=req.body.Paket
-const Dari=req.body.Dari
-const Sampai=req.body.Sampai
-const Deskripsi=req.body.Deskripsi
-const Harga=req.body.Harga
-const Komentar=req.body.Komentar
+exports.Update = async (req, res, next) => {
+    const id = req.params.id
+    const Theraphy = req.body.Theraphy
+    const Paket = req.body.Paket
+    const Dari = req.body.Dari
+    const Sampai = req.body.Sampai
+    const Deskripsi = req.body.Deskripsi
+    const Harga = req.body.Harga
+    const Komentar = req.body.Komentar
 
-await UserDb.findById(id).then(response => {
-    const arr=response.User.Pesanan
-    const emailUser=response.User.Email
-    const FullName=response.User.FullName 
-    const NoHP=response.User.NoHp
-    const Alamat=response.User.Alamat
-    if(arr.length === 0 ){
-        
-        gmail.email(emailUser,gmail.Pesan(Theraphy,Paket,Harga,Dari,Sampai),"Pemesanan Threraphy Organic")
-        gmail.emailAdmin(gmail.PesanAdmin(FullName,NoHP,Alamat,Theraphy,Paket,Harga,Dari,Sampai,Deskripsi,Komentar))
-    const Pesanan=[{Theraphy,Paket,Dari,Sampai,Deskripsi,Harga,Komentar}]
-      UserDb.findOneAndUpdate(
-        { _id: id },
-        { $set: { 'User.Pesanan': Pesanan } },
-        { new: false },
-        function (err, doc) {
-            if (err) {
-                res.status(400).json({
-                    error: err,
-                });
-            } else {
-                console.log("doc:", doc);
-                res.status(200).json({
-                    data: doc,
-                });
-            }
-        }
-    );
-}else{
-gmail.emailAdmin(gmail.PesanAdmin(FullName,NoHP,Alamat,Theraphy,Paket,Harga,Dari,Sampai,Deskripsi,Komentar)) 
-gmail.email(emailUser,gmail.Pesan(Theraphy,Paket,Harga,Dari,Sampai),"Pemesanan Threraphy Organic")
-const dataPesan=arr
-const PesananPush={Theraphy,Paket,Dari,Sampai,Deskripsi,Harga,Komentar}
-dataPesan.push(PesananPush)
-UserDb.findOneAndUpdate(
-    { _id: id },
-    { $set: { 'User.Pesanan': dataPesan } },
-    { new: false },
-    function (err, doc) {
-        if (err) {
-            res.status(400).json({
-                error: err,
-            });
+    await UserDb.findById(id).then(response => {
+        const arr = response.User.Pesanan
+        const emailUser = response.User.Email
+        const FullName = response.User.FullName
+        const NoHP = response.User.NoHp
+        const Alamat = response.User.Alamat
+        if (arr.length === 0) {
+
+            gmail.email(emailUser, gmail.Pesan(Theraphy, Paket, Harga, Dari, Sampai), "Pemesanan Threraphy Organic")
+            gmail.emailAdmin(gmail.PesanAdmin(FullName, NoHP, Alamat, Theraphy, Paket, Harga, Dari, Sampai, Deskripsi, Komentar))
+            const Pesanan = [{ Theraphy, Paket, Dari, Sampai, Deskripsi, Harga, Komentar }]
+            UserDb.findOneAndUpdate(
+                { _id: id },
+                { $set: { 'User.Pesanan': Pesanan } },
+                { new: false },
+                function (err, doc) {
+                    if (err) {
+                        res.status(400).json({
+                            error: err,
+                        });
+                    } else {
+                        console.log("doc:", doc);
+                        res.status(200).json({
+                            data: doc,
+                        });
+                    }
+                }
+            );
         } else {
-          
-            console.log("doc:", doc);
-            res.status(200).json({
-                data: doc,
-            });
+            gmail.emailAdmin(gmail.PesanAdmin(FullName, NoHP, Alamat, Theraphy, Paket, Harga, Dari, Sampai, Deskripsi, Komentar))
+            gmail.email(emailUser, gmail.Pesan(Theraphy, Paket, Harga, Dari, Sampai), "Pemesanan Threraphy Organic")
+            const dataPesan = arr
+            const PesananPush = { Theraphy, Paket, Dari, Sampai, Deskripsi, Harga, Komentar }
+            dataPesan.push(PesananPush)
+            UserDb.findOneAndUpdate(
+                { _id: id },
+                { $set: { 'User.Pesanan': dataPesan } },
+                { new: false },
+                function (err, doc) {
+                    if (err) {
+                        res.status(400).json({
+                            error: err,
+                        });
+                    } else {
+
+                        console.log("doc:", doc);
+                        res.status(200).json({
+                            data: doc,
+                        });
+                    }
+                }
+            );
         }
-    }
-);}
-})
+    })
 }
 
-exports.GetById=(req,res,next)=>{
+exports.GetById = (req, res, next) => {
     const id = req.params.id
     UserDb.findById(id).then(response => {
         res.status(200).json({
@@ -146,11 +138,11 @@ exports.GetById=(req,res,next)=>{
     })
 }
 
-exports.DeleteById=(req,res,next)=>{
+exports.DeleteById = (req, res, next) => {
     const id = req.params.id
     UserDb.findByIdAndRemove(id)
         .then(response => {
-            gmail.email(response.User.Email,gmail.PesanDelete(response.User.FullName,response.User.Alamat),"Akun Anda Di Blokir")
+            gmail.email(response.User.Email, gmail.PesanDelete(response.User.FullName, response.User.Alamat), "Akun Anda Di Blokir")
             res.status(200).json({
                 message: " delete success",
                 response
@@ -160,13 +152,13 @@ exports.DeleteById=(req,res,next)=>{
         })
 }
 
-exports.GetAll=(req,res,next)=>{
-    UserDb.find().then(response=>{
+exports.GetAll = (req, res, next) => {
+    UserDb.find().then(response => {
         res.status(200).json({
-            message:"GetAll User",
+            message: "GetAll User",
             response
         })
-    }).catch(err=>{
+    }).catch(err => {
         console.log(err)
     })
 }
@@ -178,7 +170,7 @@ exports.updateUser = (req, res, next) => {
     const Email = req.body.Email || undefined
     const NoHp = req.body.NoHp || undefined
     const Alamat = req.body.Alamat || undefined
-    
+
     if (!errors.isEmpty()) {
         res.status(400).json({
             data: {
@@ -188,7 +180,7 @@ exports.updateUser = (req, res, next) => {
         })
     } else {
         const updateFields = {}
-        
+
         if (FullName) {
             updateFields['User.FullName'] = FullName
         }
@@ -201,7 +193,7 @@ exports.updateUser = (req, res, next) => {
         if (Alamat) {
             updateFields['User.Alamat'] = Alamat
         }
-        
+
         UserDb.findOneAndUpdate(
             { _id: id },
             { $set: updateFields },
@@ -219,95 +211,95 @@ exports.updateUser = (req, res, next) => {
                 }
             }
         );
-    }  
-}
-
-
-exports.KeyPassword=(req,res,next)=>{
-    const Email=req.body.Email
-    let Key = random()
-    UserDb.findOneAndUpdate(
-        { "User.Email": Email },
-        { $set: { 'User.KeyPassword': Key} },
-        { new: false },
-        function (err, doc) {
-          if (err) {
-            res.status(400).json({
-              error: err,
-            });
-          } else {
-            console.log("doc:", doc);
-            if(doc === null){
-                res.status(200).json({
-                    error: "email tidak ada",
-                  });
-            }else{
-              gmail.email(Email,gmail.KeyPass(Key),"Authentication Code")
-                res.status(200).json({
-                    data: doc,
-                  });
-            }
-            
-          }
-        }
-      );
-}
-
-
-exports.newAcount=(req,res,next)=>{
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-       
-res.status(400).json({
-   
-    data:{message:"input value tidak sesuai",err:errors.array()}
-})
-    }else{
-    const Key=req.body.Key
-    const Email=req.body.Email
-    const Password=req.body.Password
-
-    UserDb.findOneAndUpdate(
-        { "User.KeyPassword": Key },
-        { $set: { 'User.Email': Email,'User.Password': Password} },
-        { new: false },
-        function (err, doc) {
-          if (err) {
-            res.status(400).json({
-              error: err,
-            });
-          } else {
-            console.log("doc:", doc);
-            if(doc === null){
-                res.status(200).json({
-                    error: "Code Salah",
-                  });
-            }else{
-              gmail.email(Email,gmail.KeyPass(Key),"Authentication Code")
-                res.status(200).json({
-                    data: doc,
-                  });
-            }
-            
-          }
-        }
-      );
     }
 }
 
 
-function  random(){
+exports.KeyPassword = (req, res, next) => {
+    const Email = req.body.Email
+    let Key = random()
+    UserDb.findOneAndUpdate(
+        { "User.Email": Email },
+        { $set: { 'User.KeyPassword': Key } },
+        { new: false },
+        function (err, doc) {
+            if (err) {
+                res.status(400).json({
+                    error: err,
+                });
+            } else {
+                console.log("doc:", doc);
+                if (doc === null) {
+                    res.status(200).json({
+                        error: "email tidak ada",
+                    });
+                } else {
+                    gmail.email(Email, gmail.KeyPass(Key), "Authentication Code")
+                    res.status(200).json({
+                        data: doc,
+                    });
+                }
 
-    
- for (let i = 0; i < 6; i++) {
-  let text = '';
-  for (let j = 0; j < 6; j++) {
-    text += String.fromCharCode(Math.random() < 0.5 ? 65 + Math.floor(Math.random() * 26) : 97 + Math.floor(Math.random() * 26));
-  }
-
-return text
-
+            }
+        }
+    );
 }
+
+
+exports.newAcount = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+
+        res.status(400).json({
+
+            data: { message: "input value tidak sesuai", err: errors.array() }
+        })
+    } else {
+        const Key = req.body.Key
+        const Email = req.body.Email
+        const Password = req.body.Password
+
+        UserDb.findOneAndUpdate(
+            { "User.KeyPassword": Key },
+            { $set: { 'User.Email': Email, 'User.Password': Password } },
+            { new: false },
+            function (err, doc) {
+                if (err) {
+                    res.status(400).json({
+                        error: err,
+                    });
+                } else {
+                    console.log("doc:", doc);
+                    if (doc === null) {
+                        res.status(200).json({
+                            error: "Code Salah",
+                        });
+                    } else {
+                        gmail.email(Email, gmail.KeyPass(Key), "Authentication Code")
+                        res.status(200).json({
+                            data: doc,
+                        });
+                    }
+
+                }
+            }
+        );
+    }
+}
+
+
+function random() {
+
+
+    for (let i = 0; i < 6; i++) {
+        let text = '';
+        for (let j = 0; j < 6; j++) {
+            text += String.fromCharCode(Math.random() < 0.5 ? 65 + Math.floor(Math.random() * 26) : 97 + Math.floor(Math.random() * 26));
+        }
+
+        return text
+
+    }
 
 
 }
