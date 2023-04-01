@@ -188,7 +188,7 @@ exports.updateUser = (req, res, next) => {
             updateFields['User.Email'] = Email
         }
         if (NoHp) {
-            updateFields['User.Nohp'] = NoHp
+            updateFields['User.NoHp'] = NoHp
         }
         if (Alamat) {
             updateFields['User.Alamat'] = Alamat
