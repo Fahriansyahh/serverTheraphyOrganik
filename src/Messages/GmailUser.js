@@ -1,54 +1,54 @@
 const nodemailer = require('nodemailer');
-exports.email=(emailUser,html,subject)=> {
-    let transporter = nodemailer.createTransport({
-host:"theraphyorganic@gmail.com",
-service:"gmail",
-        auth: {
-        user: "theraphyorganic@gmail.com", // generated ethereal user
-        pass: "sieojjlefuakgqnk", // generated ethereal password
-      },
-    });
- 
-    const sendMail=()=>{
-        const option={
-            from: 'theraphyorganic@gmail.com', // sender address
-            to: emailUser, // list of receivers
-            subject,
-            html ,
-        }
-        transporter.sendMail(option,(err,info)=>{
-            if(err)console.log(err);
-            console.log("email terkirim")
-        })
+exports.email = (emailUser, html, subject) => {
+  let transporter = nodemailer.createTransport({
+    host: "theraphyorganic@gmail.com",
+    service: "gmail",
+    auth: {
+      user: "theraphyorganic@gmail.com", // generated ethereal user
+      pass: "sieojjlefuakgqnk", // generated ethereal password
+    },
+  });
+
+  const sendMail = () => {
+    const option = {
+      from: 'theraphyorganic@gmail.com', // sender address
+      to: emailUser, // list of receivers
+      subject,
+      html,
     }
-   return sendMail()
+    transporter.sendMail(option, (err, info) => {
+      if (err) console.log(err);
+      console.log("email terkirim")
+    })
   }
+  return sendMail()
+}
 
- 
-  exports.emailAdmin=(html)=> {
-    let transporter = nodemailer.createTransport({
-host:"theraphyorganic@gmail.com",
-service:"gmail",
-        auth: {
-        user: "theraphyorganic@gmail.com", // generated ethereal user
-        pass: "sieojjlefuakgqnk", // generated ethereal password
-      },
-    });
- 
-    const sendMail=()=>{
-        const option={
-            from: 'theraphyorganic@gmail.com', // sender address
-            to: "sliminghafifah@gmail.com,fahrumfahriansyah1@gmail.com", // list of receivers
-            subject: "Pesanan User",
-            html
-        }
-        transporter.sendMail(option,(err,info)=>{
-            if(err)console.log(err);
-            console.log("email terkirim")
-        })
+
+exports.emailAdmin = (html) => {
+  let transporter = nodemailer.createTransport({
+    host: "theraphyorganic@gmail.com",
+    service: "gmail",
+    auth: {
+      user: "theraphyorganic@gmail.com", // generated ethereal user
+      pass: "sieojjlefuakgqnk", // generated ethereal password
+    },
+  });
+
+  const sendMail = () => {
+    const option = {
+      from: 'theraphyorganic@gmail.com', // sender address
+      to: "sliminghafifah@gmail.com,fahrumfahriansyah1@gmail.com", // list of receivers
+      subject: "Pesanan User",
+      html
     }
-   return sendMail()
+    transporter.sendMail(option, (err, info) => {
+      if (err) console.log(err);
+      console.log("email terkirim")
+    })
   }
+  return sendMail()
+}
 
 
 
@@ -56,8 +56,8 @@ service:"gmail",
 
 
 
-exports.Pesan= (Theraphy,Paket,Harga,Dari,Sampai)=>{
-const data=`
+exports.Pesan = (Theraphy, Paket, Harga, Dari, Sampai) => {
+  const data = `
 <div>
 <h4 style="color:#4CAF50;font-size:24px;">Kepada Pelanggan TherapyOrganic Yth.</h4>
 <br>
@@ -95,22 +95,22 @@ Kami dari TherapyOrganic ingin memberitahukan informasi pembayaran terkait denga
 
 </div>
 `
-return data
-  }
+  return data
+}
 
 
-  
 
-  
-exports.PesanAdmin= (FullName,NoHP,Alamat,Theraphy,Paket,Harga,Dari,Sampai,Deskripsi,Komentar)=>{
-    const Hp=`https://wa.me/${NoHP}`
-    const data=`
+
+
+exports.PesanAdmin = (FullName, NoHP, Alamat, Theraphy, Paket, Harga, Dari, Sampai, Deskripsi, Komentar) => {
+  const Hp = `https://wa.me/62${NoHP}`
+  const data = `
     <div>
     <h2>Pelanggan telah Memesan</h2>
     <br>
     <ul style="background-color:#fff; border:1px solid #ccc; padding:10px;">
       <li style="list-style: none;"><strong> nama : ${FullName} </strong></li>
-      <li style="list-style: none;"><a href=${Hp}><strong> noHp : ${NoHP} </strong></a></li>
+      <li style="list-style: none;"><a href=${Hp}><strong> noHp : 0${NoHP} </strong></a></li>
       <li style="list-style: none;"><strong> Alamat : ${Alamat} </strong></li>
       </ul>
 
@@ -126,15 +126,15 @@ exports.PesanAdmin= (FullName,NoHP,Alamat,Theraphy,Paket,Harga,Dari,Sampai,Deskr
     <li style="list-style: none;">Komentar : ${Komentar}</li>
     </ul>
 
-    <p>Hubungi Pembeli <a href=${Hp}><strong> ${FullName} : ${NoHP} </strong></a></p>
+    <p>Hubungi Pembeli <a href=${Hp}><strong> ${FullName} : 0${NoHP} </strong></a></p>
    
     </div>
     `
-    return data
-      }
+  return data
+}
 
-exports.PesanDelete=(FullName,Alamat)=>{
-  const data=`
+exports.PesanDelete = (FullName, Alamat) => {
+  const data = `
 <div>
 <h2>Akun Anda Telah Diblokir</h2>
 <p>Kepada ${FullName},</p>
@@ -154,11 +154,11 @@ exports.PesanDelete=(FullName,Alamat)=>{
 
 </div>
 `
-return data
+  return data
 }
 
-exports.KeyPass=(Key)=>{
-  const data=`
+exports.KeyPass = (Key) => {
+  const data = `
   <h1 style="color:#4CAF50;">Gmail Therapy Organik</h1>
 		<p>Salam,</p>
 		<p>Ini adalah pesan autentikasi kode untuk memastikan perubahan password akun Gmail Therapy Organik Anda:</p>
@@ -171,4 +171,3 @@ exports.KeyPass=(Key)=>{
   return data
 }
 
-  
