@@ -230,7 +230,7 @@ exports.KeyPassword = (req, res, next) => {
             } else {
                 console.log("doc:", doc);
                 if (doc === null) {
-                    res.status(200).json({
+                    res.status(400).json({
                         error: "email tidak ada",
                     });
                 } else {
@@ -256,12 +256,12 @@ exports.newAcount = (req, res, next) => {
         })
     } else {
         const Key = req.body.Key
+        const FullName=req.body.FullName
         const Email = req.body.Email
         const Password = req.body.Password
-
         UserDb.findOneAndUpdate(
             { "User.KeyPassword": Key },
-            { $set: { 'User.Email': Email, 'User.Password': Password } },
+            { $set: { 'User.Email': Email,'User.FullName':FullName,'User.Password': Password } },
             { new: false },
             function (err, doc) {
                 if (err) {
@@ -271,9 +271,13 @@ exports.newAcount = (req, res, next) => {
                 } else {
                     console.log("doc:", doc);
                     if (doc === null) {
-                        res.status(200).json({
-                            error: "Code Salah",
-                        });
+                        const data={msg:"Code Anda Salah"}
+                        let arr = errors.array()
+                        arr.push(data)
+                        res.status(400).json({
+                            
+                            data: { message: "input value tidak sesuai", err:arr }
+                        })
                     } else {
                         gmail.email(Email, gmail.KeyPass(Key), "Authentication Code")
                         res.status(200).json({
