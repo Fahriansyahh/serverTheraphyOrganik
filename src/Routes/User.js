@@ -9,6 +9,8 @@ route.post("/Created", [body("FullName").isLength({ min: 1, max: 100 }).withMess
 route.get("/Auth", User.Auth)
 route.get("/GetById/:id", User.GetById)
 route.get("/GetAll", User.GetAll)
+route.get("/GetPages",User.GetPages)
+route.get("/Search",User.Search)
 route.put("/KeyPassword", User.KeyPassword)
 route.put("/newAcount", [body("FullName").isLength({ min: 1, max: 100 }).withMessage("Fullname tidak ada"),body("Email").isEmail().withMessage("ini bukan email"), body("Password").isLength({ min: 3, max: 20 }).withMessage("Password minimal 3")], User.newAcount)
 route.put("/updatePesan/:id", User.Update)

@@ -74,7 +74,9 @@ mongoose.set('strictQuery', true);
 
 
 // pemanngilan mongo db tidak bisa menggunakan indihome
-mongoose.connect('mongodb://fahri:fahri@ac-duhqnnb-shard-00-00.zsxpnhq.mongodb.net:27017,ac-duhqnnb-shard-00-01.zsxpnhq.mongodb.net:27017,ac-duhqnnb-shard-00-02.zsxpnhq.mongodb.net:27017/Theraphy_Organic?ssl=true&replicaSet=atlas-joj2b3-shard-0&authSource=admin&retryWrites=true&w=majority')
+// mongodb://fahri:fahri@ac-duhqnnb-shard-00-00.zsxpnhq.mongodb.net:27017,ac-duhqnnb-shard-00-01.zsxpnhq.mongodb.net:27017,ac-duhqnnb-shard-00-02.zsxpnhq.mongodb.net:27017/Theraphy_Organic?ssl=true&replicaSet=atlas-joj2b3-shard-0&authSource=admin&retryWrites=true&w=majority
+
+mongoose.connect('mongodb://localhost:27017')
     .then(() => { console.log("mongoDB connect") })
     .catch(() => console.log("MOngodb 404 not found"))
 

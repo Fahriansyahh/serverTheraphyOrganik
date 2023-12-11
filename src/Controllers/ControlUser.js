@@ -163,6 +163,77 @@ exports.GetAll = (req, res, next) => {
     })
 }
 
+exports.Search = (req, res, next) => {
+    const searchQuery = req.query.q; // Assuming the search query is provided in the query parameter 'q'
+
+    // Use a regular expression for a case-insensitive search on string fields
+    const searchRegex = new RegExp(searchQuery.toString(), 'i');
+
+    // Check if the search query is a valid number using a regex
+    const isNumber = /^[0-9]+$/.test(searchQuery);
+
+    UserDb.find({
+        $or: [
+            { 'User.FullName': { $regex: searchRegex } },
+            { 'User.Email': { $regex: searchRegex } }, 
+            { 'User.Alamat': { $regex: searchRegex } }, 
+            // Handle NoHp differently if it's a valid numeric string
+          
+        ],
+    })
+        .then((data) => {
+            res.status(200).json({
+                response:data
+            });
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({
+                error: err.message,
+            });
+        });
+};
+
+
+
+
+exports.GetPages=(req,res,next)=>{
+    const page = req.query.page || 1; // Default to page 1 if not provided
+    const pageSize = 10;
+    
+    UserDb.find()
+        .countDocuments()  // Count total documents in the collection
+        .then(totalUsers => {
+            UserDb.find()
+                .skip((page - 1) * pageSize)
+                .limit(pageSize)
+                .then(response => {
+                    const totalPages = Math.ceil(totalUsers / pageSize);
+
+                    res.status(200).json({
+                        message: `GetAll User - Page ${page}`,
+                        totalUsers,
+                        totalPages,
+                        currentPage: page,
+                        usersPerPage: pageSize,
+                        response
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({
+                        error: err.message
+                    });
+                });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                error: err.message
+            });
+        });
+}
+
 exports.updateUser = (req, res, next) => {
     const errors = validationResult(req);
     const id = req.params.id
@@ -290,6 +361,7 @@ exports.newAcount = (req, res, next) => {
         );
     }
 }
+
 
 
 function random() {
