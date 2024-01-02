@@ -7,6 +7,7 @@ const bodyParser = require('body-parser')
 const Products = require("./src/Routes/Products")
 const ListTheraphy = require("./src/Routes/ListTheraphy")
 const User=require("./src/Routes/User")
+const cors = require('cors')
 
 
 
@@ -15,7 +16,9 @@ const User=require("./src/Routes/User")
 
 
 
+//!cors
 
+app.use(cors())
 //! multer
 
 const fileStorage = multer.diskStorage({
@@ -76,7 +79,7 @@ mongoose.set('strictQuery', true);
 // pemanngilan mongo db tidak bisa menggunakan indihome
 // mongodb://fahri:fahri@ac-duhqnnb-shard-00-00.zsxpnhq.mongodb.net:27017,ac-duhqnnb-shard-00-01.zsxpnhq.mongodb.net:27017,ac-duhqnnb-shard-00-02.zsxpnhq.mongodb.net:27017/Theraphy_Organic?ssl=true&replicaSet=atlas-joj2b3-shard-0&authSource=admin&retryWrites=true&w=majority
 
-mongoose.connect('mongodb://localhost:27017')
+mongoose.connect('mongodb://fahri:fahri@ac-duhqnnb-shard-00-00.zsxpnhq.mongodb.net:27017,ac-duhqnnb-shard-00-01.zsxpnhq.mongodb.net:27017,ac-duhqnnb-shard-00-02.zsxpnhq.mongodb.net:27017/Theraphy_Organic?ssl=true&replicaSet=atlas-joj2b3-shard-0&authSource=admin&retryWrites=true&w=majority')
     .then(() => { console.log("mongoDB connect") })
     .catch(() => console.log("MOngodb 404 not found"))
 
